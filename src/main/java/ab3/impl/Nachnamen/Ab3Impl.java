@@ -206,6 +206,7 @@ public class Ab3Impl implements Ab3 {
                 //     *
                 //     * @return Konfiguration der Maschine.
             }
+            return null;
         }
 
         @Override
