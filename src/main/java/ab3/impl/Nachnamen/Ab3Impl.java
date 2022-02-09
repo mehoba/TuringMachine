@@ -14,7 +14,8 @@ public class Ab3Impl implements Ab3 {
     protected boolean isInHaltingState, isInErrorState;
     protected Set<Character> turingAlphabet; // hashset ?
     protected int haltState, initState;
-    protected char blankSymbol ='#';
+    protected char blankSymbol ='_';
+    protected char symbolStartEnd = '$';
     protected TuringMachine.TapeContent tapeContent;
     @Override
     public TuringMachine getEmptyTM() {
@@ -154,12 +155,13 @@ public class Ab3Impl implements Ab3 {
             //     * @param content Der Bandinhalt des Input-Bandes als String
 
             // Nisam siguran da li je ovo ovako zamisljeno, ako treba ispravi
-            Character[] rightOfHeadChars = new Character[content.length()];
-            Character[] leftOfHeadChars = new Character[]{};
+            Character[] rightOfHeadChars = new Character[content.length()+1];
+            Character[] leftOfHeadChars = {symbolStartEnd};
             for (int i = 1; i < content.length(); i++) {
                 rightOfHeadChars[i-1] = content.charAt(i);
             }
-             tapeContent = new TapeContent(leftOfHeadChars,content.charAt(0),rightOfHeadChars);
+            rightOfHeadChars[rightOfHeadChars.length+1]=symbolStartEnd;
+            tapeContent = new TapeContent(leftOfHeadChars,content.charAt(0),rightOfHeadChars);
         }
 
         @Override
@@ -197,11 +199,13 @@ public class Ab3Impl implements Ab3 {
             if(isInErrorState()){
                 return null;
             }else{
-                //TODO : Führende und
+                //TODO : * Liefert die Konfiguration der Maschine für jedes Band. Ist
+                //     * isInErrorState() == true, wird null zurück geliefert. Führende und
                 //     * nachfolgende Leerzeichen sollen entfernt (bzw. optimalerweise während
                 //     * der Abarbeitung garnicht gespeichert) werden.
+                //     *
+                //     * @return Konfiguration der Maschine.
             }
-            return null;
         }
 
         @Override
