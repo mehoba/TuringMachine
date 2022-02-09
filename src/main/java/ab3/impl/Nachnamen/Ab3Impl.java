@@ -153,7 +153,7 @@ public class Ab3Impl implements Ab3 {
             //     *
             //     * @param content Der Bandinhalt des Input-Bandes als String
 
-            // Nisam siguran da li je ovo ovako zamisljeno
+            // Nisam siguran da li je ovo ovako zamisljeno, ako treba ispravi
             Character[] rightOfHeadChars = new Character[]{};
             Character[] leftOfHeadChars = new Character[]{};
             for (int i = 0; i < content.length(); i++) {
