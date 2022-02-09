@@ -215,7 +215,10 @@ public class Ab3Impl implements Ab3 {
 
         @Override
         public TapeContent getTapeContent(int tape) {
-            return tapeList.get(tape);
+            if(isInErrorState())
+                return null;
+            else
+                return tapeList.get(tape);
         }
     };
 	return turingMachine;
