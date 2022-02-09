@@ -200,15 +200,6 @@ public class Ab3Impl implements Ab3 {
             if(isInErrorState()){
                 return null;
             }else{
-                //TODO : * Liefert die Konfiguration der Maschine für jedes Band. Ist
-                //     * isInErrorState() == true, wird null zurück geliefert. Führende und
-                //     * nachfolgende Leerzeichen sollen entfernt (bzw. optimalerweise während
-                //     * der Abarbeitung garnicht gespeichert) werden.
-                //     *
-                //     * @return Konfiguration der Maschine.
-                if(tapeList.contains(blankSymbol)){
-                    tapeList.remove(blankSymbol);
-                }
                 return tapeList;
             }
         }
