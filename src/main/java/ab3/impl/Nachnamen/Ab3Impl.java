@@ -10,7 +10,7 @@ public class Ab3Impl implements Ab3 {
 
     private TuringMachine turingMachine;
     protected int currentState, startState, numberOfStates, numberOfTapes;
-    protected List<TuringMachine.TapeContent> tape;
+    protected List<TuringMachine.TapeContent> tapeList;
     protected boolean isInHaltingState, isInErrorState;
     protected Set<Character> turingAlphabet; // hashset ?
     protected int haltState, initState;
@@ -162,6 +162,7 @@ public class Ab3Impl implements Ab3 {
             }
             rightOfHeadChars[rightOfHeadChars.length+1]=symbolStartEnd;
             tapeContent = new TapeContent(leftOfHeadChars,content.charAt(0),rightOfHeadChars);
+            tapeList.add(tapeContent);
         }
 
         @Override
@@ -205,13 +206,16 @@ public class Ab3Impl implements Ab3 {
                 //     * der Abarbeitung garnicht gespeichert) werden.
                 //     *
                 //     * @return Konfiguration der Maschine.
+                if(tapeList.contains(blankSymbol)){
+                    tapeList.remove(blankSymbol);
+                }
+                return tapeList;
             }
-            return null;
         }
 
         @Override
         public TapeContent getTapeContent(int tape) {
-            return null;
+            return tapeList.get(tape);
         }
     };
 	return turingMachine;
