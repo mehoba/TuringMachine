@@ -10,7 +10,7 @@ public class Ab3Impl implements Ab3 {
 
     private TuringMachine turingMachine;
     protected int currentState, startState, numberOfStates, numberOfTapes;
-    protected List<String> tape;
+    protected List<TuringMachine.TapeContent> tape;
     protected boolean isInHaltingState, isInErrorState;
     protected Set<Character> turingAlphabet; // hashset ?
     protected int haltState, initState;
@@ -154,10 +154,10 @@ public class Ab3Impl implements Ab3 {
             //     * @param content Der Bandinhalt des Input-Bandes als String
 
             // Nisam siguran da li je ovo ovako zamisljeno, ako treba ispravi
-            Character[] rightOfHeadChars = new Character[]{};
+            Character[] rightOfHeadChars = new Character[content.length()];
             Character[] leftOfHeadChars = new Character[]{};
-            for (int i = 0; i <= content.length(); i++) {
-                rightOfHeadChars[i] = content.charAt(i);
+            for (int i = 1; i < content.length(); i++) {
+                rightOfHeadChars[i-1] = content.charAt(i);
             }
              tapeContent = new TapeContent(leftOfHeadChars,content.charAt(0),rightOfHeadChars);
         }
