@@ -14,7 +14,8 @@ public class Ab3Impl implements Ab3 {
     protected boolean isInHaltingState, isInErrorState;
     protected Set<Character> turingAlphabet; // hashset ?
     protected int haltState, initState;
-
+    protected char blankSymbol ='#';
+    protected TuringMachine.TapeContent tapeContent;
     @Override
     public TuringMachine getEmptyTM() {
 	turingMachine = new TuringMachine() {
@@ -144,7 +145,7 @@ public class Ab3Impl implements Ab3 {
 
         @Override
         public void setInput(String content) {
-            //TODO:  * Setzt den initialen Inhalt des Input-Bandes und setzt den
+            //TODO:* Setzt den initialen Inhalt des Input-Bandes und setzt den
             //     * Schreib-/Lesekopf auf das erste Zeichen des Inhaltes. "abc" liefert
             //     * somit den Inhalt "...abc..." wobei der Schreib-/Lesekopf über dem 'a'
             //     * steht. Rechts und links von "abc" befinden sich eine unendliche, aber
@@ -152,6 +153,13 @@ public class Ab3Impl implements Ab3 {
             //     *
             //     * @param content Der Bandinhalt des Input-Bandes als String
 
+            // Nisam siguran da li je ovo ovako zamisljeno
+            Character[] rightOfHeadChars = new Character[]{};
+            Character[] leftOfHeadChars = new Character[]{};
+            for (int i = 0; i < content.length(); i++) {
+                rightOfHeadChars[i] = content.charAt(i);
+            }
+             tapeContent = new TapeContent(leftOfHeadChars,content.charAt(0),rightOfHeadChars);
         }
 
         @Override
