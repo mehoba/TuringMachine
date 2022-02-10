@@ -42,7 +42,8 @@ public class Ab3Impl implements Ab3 {
             isInErrorState=false;
             isInHaltingState=false;
             tapeContent=null;
-            tapeContents=null;
+            tapeContents= new ArrayList<>();
+
         }
 
         @Override
@@ -177,6 +178,7 @@ public class Ab3Impl implements Ab3 {
             //     * @param content Der Bandinhalt des Input-Bandes als String
 
 
+
             // might be changes with next line
             tapeContents=new ArrayList<>();
             currentStep=0;
@@ -218,9 +220,11 @@ public class Ab3Impl implements Ab3 {
                 //     * Haltezustand, der aber nicht als tatsächlicher Zustand in der Maschine
                 //     * vorkommt)
 
+                boolean found=false;
                 for(Transaction transaction:transactionList){
                     if(transaction.getFromState()==currentState && transaction.getRead()==tapeContent.getBelowHead()) {
                         currentStep = transactionList.indexOf(transaction);
+                        found=true;
                         break;
                     }
                 }
@@ -228,7 +232,7 @@ public class Ab3Impl implements Ab3 {
                 if(transactionList.get(currentStep).getToState()==0){
                     isInHaltingState=true;}
 
-                if(transactionList.get(currentStep).getRead()!=tapeContent.getBelowHead()){
+                if(!found){
                     isInErrorState=true;
                 }
 
@@ -352,7 +356,7 @@ public class Ab3Impl implements Ab3 {
                         }
                         break;
                     }}
-
+                found=false;
                 currentState=transactionList.get(currentStep).getToState();
             }
         }
