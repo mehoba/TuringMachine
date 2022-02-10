@@ -19,6 +19,7 @@ public class Ab3Impl implements Ab3 {
     protected char symbolStartEnd = '$';
     protected TuringMachine.TapeContent tapeContent;
     protected List<Transaction> transactionList=new ArrayList<>();
+    private int currentStep;
 
 
 
@@ -38,6 +39,8 @@ public class Ab3Impl implements Ab3 {
             //     * Bandes gesetzt. Nach einem erneuten Aufruf von setInput(...) kann also
             //     * eine neue Berechnung beginnen.
             turingMachine=getEmptyTM();
+            isInErrorState=false;
+            isInHaltingState=false;
         }
 
         @Override
@@ -83,7 +86,7 @@ public class Ab3Impl implements Ab3 {
             //     *             wenn die TM mehr als ein Band hat.
 
 
-            if(currentState!=fromState  || read!=tapeContent.getBelowHead())
+            if(fromState == haltState   || fromState>=numberOfStates  || toState>=numberOfStates || !getAlphabet().contains(read) && read!=null || !getAlphabet().contains(write) && write!= null)
                 throw new IllegalArgumentException();
 
             Transaction transaction= new Transaction(fromState, read, toState, write, move);
@@ -174,7 +177,7 @@ public class Ab3Impl implements Ab3 {
 
             // might be changes with next line
             tapeContents=new ArrayList<>();
-
+            currentStep=0;
 
             Character[] rightOfHeadChars = new Character[content.length()-1];
             Character[] leftOfHeadChars = new Character[0];
@@ -206,7 +209,107 @@ public class Ab3Impl implements Ab3 {
                 //     * Haltezustand, der aber nicht als tatsächlicher Zustand in der Maschine
                 //     * vorkommt)
 
+                if(transactionList.get(currentStep).getToState()==0){
+                   isInHaltingState=true;
+                }
 
+                if(transactionList.get(currentStep).getRead()!=tapeContent.getBelowHead())
+                    isInErrorState=true;
+
+                switch (transactionList.get(currentStep).getMove()){
+                    case Left -> {
+                        if(tapeContent.getLeftOfHead().length==0){
+                            tapeContents.remove(tapeContent);
+                            Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length+1];
+                            Character[] leftOfHeadChars = new Character[0];
+
+                            rightOfHeadChars[0]=transactionList.get(currentStep).getWrite();
+                            for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                                rightOfHeadChars[i+1] = tapeContent.getRightOfHead()[i];
+                            }
+
+                            Character belowHead= null;
+
+                            tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
+                            tapeContents.add(tapeContent);
+                        }
+                        else{
+                            tapeContents.remove(tapeContent);
+                        Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length+1];
+                        Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length-1];
+
+                        rightOfHeadChars[0]=transactionList.get(currentStep).getWrite();
+                        for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                            rightOfHeadChars[i+1] = tapeContent.getRightOfHead()[i];
+                        }
+                        for (int i = 0; i < tapeContent.getLeftOfHead().length-1; i++) {
+                            leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                        }
+                        Character belowHead=  tapeContent.getLeftOfHead()[tapeContent.getLeftOfHead().length-1];
+
+                        tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
+                        tapeContents.add(tapeContent);
+                        }
+                        break;
+                    }
+                    case Stay -> {
+                        tapeContents.remove(tapeContent);
+                        Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length];
+                        Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length];
+
+
+                        for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                            rightOfHeadChars[i] = tapeContent.getRightOfHead()[i];
+                        }
+                        for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                            leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                        }
+                        Character belowHead=  transactionList.get(currentStep).getWrite();
+
+                        tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
+                        tapeContents.add(tapeContent);
+                        break;
+                    }
+                    case Right -> {
+                        if(tapeContent.getRightOfHead().length==0){
+                            tapeContents.remove(tapeContent);
+                            Character[] rightOfHeadChars = new Character[0];
+                            Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
+
+                            leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+
+                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                            }
+                            Character belowHead= null;
+
+                            tapeContent=new TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
+                            tapeContents.add(tapeContent);
+                        }
+                        else
+                        {
+                            tapeContents.remove(tapeContent);
+                            Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length-1];
+                            Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
+
+                            leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+                            for (int i = 1; i < tapeContent.getRightOfHead().length; i++) {
+                                rightOfHeadChars[i-1] = tapeContent.getRightOfHead()[i];
+                            }
+                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                            }
+                            Character belowHead=  tapeContent.getRightOfHead()[0];
+
+                            tapeContent=new TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
+                            tapeContents.add(tapeContent);
+                        }
+                        break;
+                    }}
+
+                currentState=transactionList.get(currentStep).getToState();
+
+                currentStep++;
             }
         }
 
@@ -249,58 +352,37 @@ public class Ab3Impl implements Ab3 {
 
 
     class Transaction{
+        int fromState;
+        Character read;
+        int toState;
+        Character write;
+        TuringMachine.Movement move;
         public Transaction(int fromState, Character read, int toState, Character write, TuringMachine.Movement move){
-            switch (move){
-                case Left -> {
-                    Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length+1];
-                    Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length-1];
+          this.fromState=fromState;
+          this.read=read;
+          this.toState=toState;
+          this.write=write;
+          this.move=move;
+        }
 
-                    rightOfHeadChars[0]=write;
-                    for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
-                        rightOfHeadChars[i+1] = tapeContent.getRightOfHead()[i];
-                    }
-                    for (int i = 0; i < tapeContent.getLeftOfHead().length-1; i++) {
-                        leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
-                    }
-                    Character belowHead=  tapeContent.getLeftOfHead()[tapeContent.getLeftOfHead().length-1];
+        public int getFromState() {
+            return fromState;
+        }
 
-                    tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
-                    break;
-                }
-                case Stay -> {
-                    Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length];
-                    Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length];
+        public Character getRead() {
+            return read;
+        }
 
+        public int getToState() {
+            return toState;
+        }
 
-                    for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
-                        rightOfHeadChars[i] = tapeContent.getRightOfHead()[i];
-                    }
-                    for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
-                        leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
-                    }
-                    Character belowHead=  write;
+        public Character getWrite() {
+            return write;
+        }
 
-                    tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
-                    break;
-                }
-                case Right -> {
-                    Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length-1];
-                    Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
-
-                    rightOfHeadChars[leftOfHeadChars.length-1]=write;
-                    for (int i = 1; i < tapeContent.getRightOfHead().length; i++) {
-                        rightOfHeadChars[i-1] = tapeContent.getRightOfHead()[i];
-                    }
-                    for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
-                        leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
-                    }
-                    Character belowHead=  tapeContent.getRightOfHead()[0];
-
-                    tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
-                    break;
-                }}
-
-            currentState=toState;
+        public TuringMachine.Movement getMove() {
+            return move;
         }
     }
 }
