@@ -38,9 +38,11 @@ public class Ab3Impl implements Ab3 {
             //     * zurückgesetzt, sowie der Schreib-/Lesekopf auf das erste Zeichen des
             //     * Bandes gesetzt. Nach einem erneuten Aufruf von setInput(...) kann also
             //     * eine neue Berechnung beginnen.
-            turingMachine=getEmptyTM();
+//            turingMachine=getEmptyTM();
             isInErrorState=false;
             isInHaltingState=false;
+            tapeContent=null;
+            tapeContents=null;
         }
 
         @Override
@@ -178,8 +180,11 @@ public class Ab3Impl implements Ab3 {
             // might be changes with next line
             tapeContents=new ArrayList<>();
             currentStep=0;
-
-            Character[] rightOfHeadChars = new Character[content.length()-1];
+            Character[] rightOfHeadChars;
+            if(content.length()>1)
+                 rightOfHeadChars = new Character[content.length()-1];
+            else
+                rightOfHeadChars = new Character[0];
             Character[] leftOfHeadChars = new Character[0];
 
             for (int i = 1; i < content.length(); i++) {
@@ -188,7 +193,11 @@ public class Ab3Impl implements Ab3 {
 //
 //            rightOfHeadChars[rightOfHeadChars.length-1]=symbolStartEnd;
 
-            Character belowHead=  content.charAt(0);
+            Character belowHead;
+            if(content.equals(""))
+                belowHead=  null;
+            else
+                belowHead=  content.charAt(0);
             tapeContent = new TapeContent(leftOfHeadChars, belowHead,rightOfHeadChars);
 
             currentState=initState;
@@ -200,7 +209,7 @@ public class Ab3Impl implements Ab3 {
 
         @Override
         public void doNextStep() throws IllegalStateException {
-            if(isInHaltingState()||isInErrorState()){
+            if(isInErrorState()){
                 throw new IllegalStateException();
             }else{
                 //TODO: ** Führt einen Ableitungsschritt der Turingmaschine aus. Ist kein
@@ -209,12 +218,19 @@ public class Ab3Impl implements Ab3 {
                 //     * Haltezustand, der aber nicht als tatsächlicher Zustand in der Maschine
                 //     * vorkommt)
 
-                if(transactionList.get(currentStep).getToState()==0){
-                   isInHaltingState=true;
+                for(Transaction transaction:transactionList){
+                    if(transaction.getFromState()==currentState && transaction.getRead()==tapeContent.getBelowHead()) {
+                        currentStep = transactionList.indexOf(transaction);
+                        break;
+                    }
                 }
 
-                if(transactionList.get(currentStep).getRead()!=tapeContent.getBelowHead())
+                if(transactionList.get(currentStep).getToState()==0){
+                    isInHaltingState=true;}
+
+                if(transactionList.get(currentStep).getRead()!=tapeContent.getBelowHead()){
                     isInErrorState=true;
+                }
 
                 switch (transactionList.get(currentStep).getMove()){
                     case Left -> {
@@ -257,13 +273,15 @@ public class Ab3Impl implements Ab3 {
                         Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length];
                         Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length];
 
-
+                        if(rightOfHeadChars.length>0){
                         for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
                             rightOfHeadChars[i] = tapeContent.getRightOfHead()[i];
-                        }
+                        }}
+                        if(leftOfHeadChars.length>0){
                         for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
                             leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
-                        }
+                        }}
+
                         Character belowHead=  transactionList.get(currentStep).getWrite();
 
                         tapeContent=new TuringMachine.TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
@@ -274,13 +292,24 @@ public class Ab3Impl implements Ab3 {
                         if(tapeContent.getRightOfHead().length==0){
                             tapeContents.remove(tapeContent);
                             Character[] rightOfHeadChars = new Character[0];
-                            Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
+                            Character[] leftOfHeadChars;
 
-                            leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+                            if(transactionList.get(currentStep).getWrite()!=null){
+                                leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
+                            if(leftOfHeadChars.length==1)
+                                leftOfHeadChars[0]=transactionList.get(currentStep).getWrite();
 
-                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
-                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                            else {
+                                leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+                                for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                    leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                                }
+                            }}
+
+                            else {
+                                leftOfHeadChars = tapeContent.getLeftOfHead();
                             }
+
                             Character belowHead= null;
 
                             tapeContent=new TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
@@ -290,15 +319,32 @@ public class Ab3Impl implements Ab3 {
                         {
                             tapeContents.remove(tapeContent);
                             Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length-1];
-                            Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length+1];
+                            Character[] leftOfHeadChars;
 
-                            leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+                            if(transactionList.get(currentStep).getWrite()!=null){
+                                leftOfHeadChars= new Character[tapeContent.getLeftOfHead().length+1];
+                            if(leftOfHeadChars.length==1)
+                                leftOfHeadChars[0]=transactionList.get(currentStep).getWrite();
+
+                            else {
+                                leftOfHeadChars[leftOfHeadChars.length-1]=transactionList.get(currentStep).getWrite();
+                                for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                    leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                                }
+                            }}
+                            else
+                                leftOfHeadChars=tapeContent.getLeftOfHead();
+
+
+
+                            if(rightOfHeadChars.length==1){
+                              rightOfHeadChars[0]= tapeContent.getRightOfHead()[1];
+                            }
+                            else{
                             for (int i = 1; i < tapeContent.getRightOfHead().length; i++) {
                                 rightOfHeadChars[i-1] = tapeContent.getRightOfHead()[i];
-                            }
-                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
-                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
-                            }
+                            }}
+
                             Character belowHead=  tapeContent.getRightOfHead()[0];
 
                             tapeContent=new TapeContent(leftOfHeadChars,belowHead,rightOfHeadChars);
@@ -308,8 +354,6 @@ public class Ab3Impl implements Ab3 {
                     }}
 
                 currentState=transactionList.get(currentStep).getToState();
-
-                currentStep++;
             }
         }
 
