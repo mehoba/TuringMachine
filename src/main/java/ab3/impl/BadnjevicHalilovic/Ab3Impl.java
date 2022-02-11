@@ -17,10 +17,11 @@ public class Ab3Impl implements Ab3 {
     protected int haltState, initState;
     protected char blankSymbol = '_';
     protected char symbolStartEnd = '$';
-    protected TuringMachine.TapeContent tapeContent;
+    protected TuringMachine.TapeContent tapeContent, tapeContent2;
     protected List<Transaction> transactionList = new ArrayList<>();
     protected List<Transaction> multibandTransactionList= new ArrayList<>();
     private int currentStep;
+    private boolean isMoreBand;
 
 
     @Override
@@ -43,8 +44,10 @@ public class Ab3Impl implements Ab3 {
                 Character[] newLeft = new Character[0];
                 Character[] newRight = new Character[0];
                 tapeContent = new TapeContent(newLeft, null, newRight);
+                tapeContent2=new TapeContent(newLeft,null,newRight);
                 setInput(null);
                 tapeContents = new ArrayList<>();
+
 
 
             }
@@ -68,6 +71,7 @@ public class Ab3Impl implements Ab3 {
                     turingAlphabet = alphabet;
                     transactionList = new ArrayList<>();
                     multibandTransactionList=new ArrayList<>();
+                    isMoreBand=false;
                 }
             }
 
@@ -122,11 +126,11 @@ public class Ab3Impl implements Ab3 {
                 //     *             fromState, read); wenn ein Symbol nicht Teil des
                 //     *             Bandalphabets ist; oder wenn ein Zustand nicht existiert.
 
-                if (fromState == haltState || fromState >= numberOfStates || toState >= numberOfStates || !getAlphabet().contains(read) && read != null || !getAlphabet().contains(write) && write != null)
+                if (fromState == haltState || fromState >= numberOfStates || toState >= numberOfStates)
                     throw new IllegalArgumentException();
 
                 Transaction transaction= new Transaction(fromState,read,toState, write,move);
-
+                isMoreBand=true;
                 multibandTransactionList.add(transaction);
 
 
@@ -191,6 +195,45 @@ public class Ab3Impl implements Ab3 {
                 //     *
                 //     * @param content Der Bandinhalt des Input-Bandes als String
 
+                if(isMoreBand==true){
+                    if (content == null) {
+                        tapeContents = new ArrayList<>();
+                        Character[] rightOfHeadChars = new Character[0];
+                        Character[] leftOfHeadChars = new Character[0];
+                        Character belowHead = null;
+                        tapeContent = new TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                        tapeContent2= new TapeContent(new Character[0], null, new Character[0]);
+                        currentState = initState;
+                    } else {
+                        // might be changes with next line
+                        tapeContents = new ArrayList<>();
+                        Character[] rightOfHeadChars;
+                        if (content.length() > 1)
+                            rightOfHeadChars = new Character[content.length() - 1];
+                        else
+                            rightOfHeadChars = new Character[0];
+                        Character[] leftOfHeadChars = new Character[0];
+
+                        for (int i = 1; i < content.length(); i++) {
+                            rightOfHeadChars[i - 1] = content.charAt(i);
+                        }
+
+
+                        Character belowHead;
+                        if (content.equals(""))
+                            belowHead = null;
+                        else
+                            belowHead = content.charAt(0);
+                        tapeContent = new TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                        tapeContent2= new TapeContent(new Character[0], null, new Character[0]);
+
+                        currentState = initState;
+
+                        tapeContents.add(tapeContent);
+                        tapeContents.add(tapeContent2);
+                }}
+                else
+                {
 
                 if (content == null) {
                     tapeContents = new ArrayList<>();
@@ -225,6 +268,7 @@ public class Ab3Impl implements Ab3 {
 
                     tapeContents.add(tapeContent);
                 }
+                }
             }
 
 
@@ -240,6 +284,31 @@ public class Ab3Impl implements Ab3 {
                     //     * vorkommt)
 
                     boolean found = false;
+
+                    if(isMoreBand==true){
+                        for (Transaction transaction : multibandTransactionList) {
+                            if (transaction.getFromState() == currentState && transaction.getMoreBandRead()[0] == tapeContent.getBelowHead() && transaction.getMoreBandRead()[1]==tapeContent2.getBelowHead()) {
+                                currentStep = multibandTransactionList.indexOf(transaction);
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (multibandTransactionList.get(currentStep).getToState() == 0) {
+                            isInHaltingState = true;
+                        }
+
+                        if (!found) {
+                            isInErrorState = true;
+                        }
+
+                        moveProcess(tapeContent,currentStep,0);
+                        moveProcess(tapeContent2,currentStep,1);
+
+                        found = false;
+                        currentState = multibandTransactionList.get(currentStep).getToState();
+                    }
+                    else{
                     for (Transaction transaction : transactionList) {
                         if (transaction.getFromState() == currentState && transaction.getRead() == tapeContent.getBelowHead()) {
                             currentStep = transactionList.indexOf(transaction);
@@ -394,7 +463,7 @@ public class Ab3Impl implements Ab3 {
                     }
                     found = false;
                     currentState = transactionList.get(currentStep).getToState();
-                }
+                }}
             }
 
             @Override
@@ -433,6 +502,156 @@ public class Ab3Impl implements Ab3 {
         return turingMachine;
     }
 
+    public void moveProcess(TuringMachine.TapeContent tapeContent, int currentStep, int bandIndex){
+        switch (multibandTransactionList.get(currentStep).getMoreBandMove()[bandIndex]) {
+            case Left -> {
+                if (tapeContent.getLeftOfHead().length == 0) {
+                    tapeContents.remove(bandIndex);
+                    Character[] rightOfHeadChars;
+                    Character[] leftOfHeadChars = new Character[0];
+
+                    if (multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex] != null) {
+                        rightOfHeadChars = new Character[tapeContent.getRightOfHead().length + 1];
+                        if (rightOfHeadChars.length == 1)
+                            rightOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                        else {
+                            rightOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                            for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                                rightOfHeadChars[i + 1] = tapeContent.getRightOfHead()[i];
+                            }
+                        }
+                    } else{
+                        rightOfHeadChars = tapeContent.getRightOfHead();}
+
+                    Character belowHead = null;
+
+                    tapeContent = new TuringMachine.TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                    tapeContents.add(bandIndex,tapeContent);
+                } else {
+                    tapeContents.remove(bandIndex);
+                    Character[] rightOfHeadChars;
+                    Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length - 1];
+
+                    if (multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex] != null) {
+                        rightOfHeadChars = new Character[tapeContent.getRightOfHead().length + 1];
+                        if (rightOfHeadChars.length == 1)
+                            rightOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                        else {
+                            rightOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                            for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                                rightOfHeadChars[i + 1] = tapeContent.getRightOfHead()[i];
+                            }
+                        }
+                    } else{
+                        rightOfHeadChars = tapeContent.getRightOfHead();}
+
+
+                    for (int i = 0; i < tapeContent.getLeftOfHead().length - 1; i++) {
+                        leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                    }
+                    Character belowHead = tapeContent.getLeftOfHead()[tapeContent.getLeftOfHead().length - 1];
+
+                    tapeContent = new TuringMachine.TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                    tapeContents.add(bandIndex,tapeContent);
+                }
+                if(bandIndex==0)
+                    this.tapeContent=tapeContent;
+                else
+                    this.tapeContent2=tapeContent;
+                break;
+            }
+            case Stay -> {
+                tapeContents.remove(bandIndex);
+                Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length];
+                Character[] leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length];
+
+                if (rightOfHeadChars.length > 0) {
+                    for (int i = 0; i < tapeContent.getRightOfHead().length; i++) {
+                        rightOfHeadChars[i] = tapeContent.getRightOfHead()[i];
+                    }
+                }
+                if (leftOfHeadChars.length > 0) {
+                    for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                        leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                    }
+                }
+
+                Character belowHead = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+
+                tapeContent = new TuringMachine.TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                tapeContents.add(bandIndex, tapeContent);
+                if(bandIndex==0)
+                    this.tapeContent=tapeContent;
+                else
+                    this.tapeContent2=tapeContent;
+                break;
+            }
+            case Right -> {
+                if (tapeContent.getRightOfHead().length == 0) {
+                    tapeContents.remove(bandIndex);
+                    Character[] rightOfHeadChars = new Character[0];
+                    Character[] leftOfHeadChars;
+
+                    if (multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex] != null) {
+                        leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length + 1];
+                        if (leftOfHeadChars.length == 1)
+                            leftOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+
+                        else {
+                            leftOfHeadChars[leftOfHeadChars.length - 1] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                            }
+                        }
+                    } else {
+                        leftOfHeadChars = tapeContent.getLeftOfHead();
+                    }
+
+                    Character belowHead = null;
+
+                    tapeContent = new TuringMachine.TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                    tapeContents.add(bandIndex,tapeContent);
+                } else {
+                    tapeContents.remove(bandIndex);
+                    Character[] rightOfHeadChars = new Character[tapeContent.getRightOfHead().length - 1];
+                    Character[] leftOfHeadChars;
+
+                    if (multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex] != null) {
+                        leftOfHeadChars = new Character[tapeContent.getLeftOfHead().length + 1];
+                        if (leftOfHeadChars.length == 1)
+                            leftOfHeadChars[0] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+
+                        else {
+                            leftOfHeadChars[leftOfHeadChars.length - 1] = multibandTransactionList.get(currentStep).getMoreBandWrite()[bandIndex];
+                            for (int i = 0; i < tapeContent.getLeftOfHead().length; i++) {
+                                leftOfHeadChars[i] = tapeContent.getLeftOfHead()[i];
+                            }
+                        }
+                    } else
+                        leftOfHeadChars = tapeContent.getLeftOfHead();
+
+
+                    if (rightOfHeadChars.length == 1) {
+                        rightOfHeadChars[0] = tapeContent.getRightOfHead()[1];
+                    } else {
+                        for (int i = 1; i < tapeContent.getRightOfHead().length; i++) {
+                            rightOfHeadChars[i - 1] = tapeContent.getRightOfHead()[i];
+                        }
+                    }
+
+                    Character belowHead = tapeContent.getRightOfHead()[0];
+
+                    tapeContent = new TuringMachine.TapeContent(leftOfHeadChars, belowHead, rightOfHeadChars);
+                    tapeContents.add(bandIndex,tapeContent);
+                }
+                if(bandIndex==0)
+                    this.tapeContent=tapeContent;
+                else
+                    this.tapeContent2=tapeContent;
+                break;
+            }
+        }
+    }
 
     class Transaction {
         int fromState;

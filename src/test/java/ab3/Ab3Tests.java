@@ -354,95 +354,95 @@ public class Ab3Tests {
 	punkte += 2;
     }
 
-//    @Test
-//    public void testMachineTwoTapesA() {
-//	TuringMachine tm = getMachineTwoTapes();
-//
-//	// Maschine hat 2 Bänder
-//	assertEquals(2, tm.getNumberOfTapes());
-//
-//	// Lasse die Maschine bis zum Haltezustand laufen
-//	tm.reset();
-//	tm.setInput("1101");
-//	while (!tm.isInHaltingState()) {
-//	    tm.doNextStep();
-//	}
-//
-//	// Prüfe den Bandinhalt
-//	TapeContent tape = tm.getTapeContent(0);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[] {'0', '1', '1', '0'}, tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(0));
-//
-//	tape = tm.getTapeContent(1);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[] {'1', '0', '1', '1'}, tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(1));
-//
-//	punkte += 2;
-//    }
-//
-//    @Test
-//    public void testMachineTwoTapesB() {
-//	TuringMachine tm = getMachineTwoTapes();
-//
-//	// Maschine hat 2 Bänder
-//	assertEquals(2, tm.getNumberOfTapes());
-//
-//	// Lasse die Maschine bis zum Haltezustand laufen
-//	tm.reset();
-//	tm.setInput("11011");
-//	while (!tm.isInHaltingState()) {
-//	    tm.doNextStep();
-//	}
-//
-//	// Prüfe den Bandinhalt
-//	TapeContent tape = tm.getTapeContent(0);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[] {'0', '0', '0', '0', '0'}, tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(0));
-//
-//	tape = tm.getTapeContent(1);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[] {'1', '1', '0', '1', '1'}, tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(1));
-//
-//	punkte += 2;
-//    }
-//
-//    @Test
-//    public void testMachineTwoTapesC() {
-//	TuringMachine tm = getMachineTwoTapes();
-//
-//	// Maschine hat 2 Bänder
-//	assertEquals(2, tm.getNumberOfTapes());
-//
-//	// Lasse die Maschine bis zum Haltezustand laufen
-//	tm.reset();
-//	tm.setInput("");
-//	while (!tm.isInHaltingState()) {
-//	    tm.doNextStep();
-//	}
-//
-//	// Prüfe den Bandinhalt
-//	TapeContent tape = tm.getTapeContent(0);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[0], tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(0));
-//
-//	tape = tm.getTapeContent(1);
-//	assertArrayEquals(new Character[0], tape.getLeftOfHead());
-//	assertEquals(null, tape.getBelowHead());
-//	assertArrayEquals(new Character[0], tape.getRightOfHead());
-//	assertEquals(tape, tm.getTapeContents().get(1));
-//
-//	punkte += 2;
-//    }
+    @Test
+    public void testMachineTwoTapesA() {
+	TuringMachine tm = getMachineTwoTapes();
+
+	// Maschine hat 2 Bänder
+	assertEquals(2, tm.getNumberOfTapes());
+
+	// Lasse die Maschine bis zum Haltezustand laufen
+	tm.reset();
+	tm.setInput("1101");
+	while (!tm.isInHaltingState()) {
+	    tm.doNextStep();
+	}
+
+	// Prüfe den Bandinhalt
+	TapeContent tape = tm.getTapeContent(0);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[] {'0', '1', '1', '0'}, tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(0));
+
+	tape = tm.getTapeContent(1);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[] {'1', '0', '1', '1'}, tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(1));
+
+	punkte += 2;
+    }
+
+    @Test
+    public void testMachineTwoTapesB() {
+	TuringMachine tm = getMachineTwoTapes();
+
+	// Maschine hat 2 Bänder
+	assertEquals(2, tm.getNumberOfTapes());
+
+	// Lasse die Maschine bis zum Haltezustand laufen
+	tm.reset();
+	tm.setInput("11011");
+	while (!tm.isInHaltingState()) {
+	    tm.doNextStep();
+	}
+
+	// Prüfe den Bandinhalt
+	TapeContent tape = tm.getTapeContent(0);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[] {'0', '0', '0', '0', '0'}, tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(0));
+
+	tape = tm.getTapeContent(1);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[] {'1', '1', '0', '1', '1'}, tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(1));
+
+	punkte += 2;
+    }
+
+    @Test
+    public void testMachineTwoTapesC() {
+	TuringMachine tm = getMachineTwoTapes();
+
+	// Maschine hat 2 Bänder
+	assertEquals(2, tm.getNumberOfTapes());
+
+	// Lasse die Maschine bis zum Haltezustand laufen
+	tm.reset();
+	tm.setInput("");
+	while (!tm.isInHaltingState()) {
+	    tm.doNextStep();
+	}
+
+	// Prüfe den Bandinhalt
+	TapeContent tape = tm.getTapeContent(0);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[0], tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(0));
+
+	tape = tm.getTapeContent(1);
+	assertArrayEquals(new Character[0], tape.getLeftOfHead());
+	assertEquals(null, tape.getBelowHead());
+	assertArrayEquals(new Character[0], tape.getRightOfHead());
+	assertEquals(tape, tm.getTapeContents().get(1));
+
+	punkte += 2;
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////
