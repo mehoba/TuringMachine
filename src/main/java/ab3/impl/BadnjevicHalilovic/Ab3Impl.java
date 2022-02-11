@@ -1,4 +1,4 @@
-package ab3.impl.Nachnamen;
+package ab3.impl.BadnjevicHalilovic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,7 @@ public class Ab3Impl implements Ab3 {
     protected char symbolStartEnd = '$';
     protected TuringMachine.TapeContent tapeContent;
     protected List<Transaction> transactionList = new ArrayList<>();
+    protected List<Transaction> multibandTransactionList= new ArrayList<>();
     private int currentStep;
 
 
@@ -66,6 +67,7 @@ public class Ab3Impl implements Ab3 {
                      * vorhandene Leerzeichen (das durch "null" repräsentiert wird).*/
                     turingAlphabet = alphabet;
                     transactionList = new ArrayList<>();
+                    multibandTransactionList=new ArrayList<>();
                 }
             }
 
@@ -119,6 +121,15 @@ public class Ab3Impl implements Ab3 {
                 //     *             ist; wenn ein Übergang nicht deterministisch ist (bzgl.
                 //     *             fromState, read); wenn ein Symbol nicht Teil des
                 //     *             Bandalphabets ist; oder wenn ein Zustand nicht existiert.
+
+                if (fromState == haltState || fromState >= numberOfStates || toState >= numberOfStates || !getAlphabet().contains(read) && read != null || !getAlphabet().contains(write) && write != null)
+                    throw new IllegalArgumentException();
+
+                Transaction transaction= new Transaction(fromState,read,toState, write,move);
+
+                multibandTransactionList.add(transaction);
+
+
             }
 
             @Override
@@ -201,8 +212,7 @@ public class Ab3Impl implements Ab3 {
                     for (int i = 1; i < content.length(); i++) {
                         rightOfHeadChars[i - 1] = content.charAt(i);
                     }
-//
-//            rightOfHeadChars[rightOfHeadChars.length-1]=symbolStartEnd;
+
 
                     Character belowHead;
                     if (content.equals(""))
@@ -430,6 +440,10 @@ public class Ab3Impl implements Ab3 {
         int toState;
         Character write;
         TuringMachine.Movement move;
+        Character [] moreBandRead;
+        Character[] moreBandWrite;
+        TuringMachine.Movement [] moreBandMove;
+
 
         public Transaction(int fromState, Character read, int toState, Character write, TuringMachine.Movement move) {
             this.fromState = fromState;
@@ -437,6 +451,14 @@ public class Ab3Impl implements Ab3 {
             this.toState = toState;
             this.write = write;
             this.move = move;
+        }
+
+        public Transaction(int fromState, Character [] moreBandRead, int toState,Character [] moreBandWrite, TuringMachine.Movement [] moreBandMove){
+            this.fromState=fromState;
+            this.toState=toState;
+            this.moreBandRead=moreBandRead;
+            this.moreBandWrite=moreBandWrite;
+            this.moreBandMove=moreBandMove;
         }
 
         public int getFromState() {
@@ -457,6 +479,18 @@ public class Ab3Impl implements Ab3 {
 
         public TuringMachine.Movement getMove() {
             return move;
+        }
+
+        public Character[] getMoreBandRead() {
+            return moreBandRead;
+        }
+
+        public Character[] getMoreBandWrite() {
+            return moreBandWrite;
+        }
+
+        public TuringMachine.Movement[] getMoreBandMove() {
+            return moreBandMove;
         }
     }
 }

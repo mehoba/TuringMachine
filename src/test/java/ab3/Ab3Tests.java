@@ -4,18 +4,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import ab3.TuringMachine.Movement;
 import ab3.TuringMachine.TapeContent;
 
-import ab3.impl.Nachnamen.Ab3Impl;
+import ab3.impl.BadnjevicHalilovic.Ab3Impl;
 
 public class Ab3Tests {
     
