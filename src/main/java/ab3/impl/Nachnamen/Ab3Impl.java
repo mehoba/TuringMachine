@@ -38,11 +38,17 @@ public class Ab3Impl implements Ab3 {
             //     * zurückgesetzt, sowie der Schreib-/Lesekopf auf das erste Zeichen des
             //     * Bandes gesetzt. Nach einem erneuten Aufruf von setInput(...) kann also
             //     * eine neue Berechnung beginnen.
-//            turingMachine=getEmptyTM();
+
             isInErrorState=false;
             isInHaltingState=false;
-            tapeContent=null;
+            currentState=initState;
+            Character [] newLeft = new Character[0];
+            Character [] newRight = new Character[0];
+            tapeContent= new TapeContent(newLeft, null, newRight);
+            setInput(null);
             tapeContents= new ArrayList<>();
+
+
 
         }
 
@@ -63,6 +69,7 @@ public class Ab3Impl implements Ab3 {
                  * unterscheidet sich vom Input-Alphabet nur durch das zusätzlich
                  * vorhandene Leerzeichen (das durch "null" repräsentiert wird).*/
                 turingAlphabet = alphabet;
+                transactionList=new ArrayList<>();
             }
         }
 
@@ -179,9 +186,19 @@ public class Ab3Impl implements Ab3 {
 
 
 
+            if(content==null)
+            {
+                tapeContents=new ArrayList<>();
+                Character[] rightOfHeadChars = new Character[0];
+                Character[] leftOfHeadChars = new Character[0];
+                Character belowHead =  null;
+                tapeContent = new TapeContent(leftOfHeadChars, belowHead,rightOfHeadChars);
+                currentState=initState;
+            }
+
+            else{
             // might be changes with next line
             tapeContents=new ArrayList<>();
-            currentStep=0;
             Character[] rightOfHeadChars;
             if(content.length()>1)
                  rightOfHeadChars = new Character[content.length()-1];
@@ -205,7 +222,7 @@ public class Ab3Impl implements Ab3 {
             currentState=initState;
 
             tapeContents.add(tapeContent);
-        }
+        }}
 
 
 
